@@ -1,13 +1,16 @@
 const express = require("express");
 const path = require ("path");
-const {connectTOMongoDB} = require("./connect");
+const cookieParser = require("cookie-parser");
 
+const {connectTOMongoDB} = require("./connect");
+const {restrictToLoggedinUserOnly, checkAuth}= require ("./middleware/auth");
 
 const URL = require("./models/url");
 
 const urlRoute = require("./routes/url");
 const staticRouter = require("./routes/staticRouter");
 const userRoute = require("./routes/user");
+
 
 const app = express();
 const PORT=8001;
@@ -19,13 +22,13 @@ app.set("view engine", "ejs");
 app.set("views", path.resolve("./views"));
 
 app.use(express.json());
-
-
 app.use(express.urlencoded({extended: false}));
+app.use(cookieParser());
 
-app.use("/url", urlRoute);
-app.use("/user", userRoute);
-app.use("/", staticRouter);
+
+app.use("/url", restrictToLoggedinUserOnly, urlRoute);
+app.use("/user",  userRoute);
+app.use("/",checkAuth, staticRouter);
 
 app.get("/url/:shortID",async (req, res)=> {
     const shortID=req.params.shortID;
