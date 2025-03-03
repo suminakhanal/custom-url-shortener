@@ -12,9 +12,22 @@ async function handleGenerateNewShortURL(req, res){
         visitHistory: [], 
     });
 
-    return res.json( {id: shortID} );
+    return res.render("home",{
+        id: shortID,
+    } );
+   
 }
+
+async function handleGetAnalytics(req,res){
+    const shortID= req.params.shortID;
+   const result =  await URL.findOne({shortID});
+   return res.json({totalClicks: result.visitHistory.length,
+     analytics: result.visitHistory,
+    });
+}
+
 
 module.exports = {
     handleGenerateNewShortURL,
+    handleGetAnalytics,
 };
