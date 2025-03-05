@@ -3,7 +3,7 @@ const path = require ("path");
 const cookieParser = require("cookie-parser");
 
 const {connectTOMongoDB} = require("./connect");
-const {restrictToLoggedinUserOnly, checkAuth}= require ("./middleware/auth");
+const {checkForAuthentication, restrictTo}= require ("./middleware/auth");
 
 const URL = require("./models/url");
 
@@ -24,11 +24,12 @@ app.set("views", path.resolve("./views"));
 app.use(express.json());
 app.use(express.urlencoded({extended: false}));
 app.use(cookieParser());
+app.use(checkForAuthentication);
 
 
-app.use("/url", restrictToLoggedinUserOnly, urlRoute);
-app.use("/user",  userRoute);
-app.use("/",checkAuth, staticRouter);
+app.use("/url",restrictTo(["Normal", "ADMIN"]),  urlRoute);
+app.use("/user", userRoute);
+app.use("/", staticRouter);
 
 app.get("/url/:shortID",async (req, res)=> {
     const shortID=req.params.shortID;
