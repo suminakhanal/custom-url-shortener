@@ -13,7 +13,7 @@ function checkForAuthentication(req, res, next){
     const token= tokenCookie;
     const user = getUser(token);
 
-    req.user =- user;
+    req.user = user;
     return next();
 }
 
@@ -23,9 +23,10 @@ function restrictTo(roles =[]) {
     return function(req, res, next){
         if(!req.user) return res.redirect("/login");
 
-        if(!roles.includes(req.user.role)) 
+        if(!roles.includes(req.user.role)) {
             return res.end("Unauthorized");
-
+        }
+        
         return next();
     };
 }
@@ -34,4 +35,4 @@ function restrictTo(roles =[]) {
 module.exports = {
     checkForAuthentication,
     restrictTo,
-}
+};
